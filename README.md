@@ -1,0 +1,2 @@
+# ESP32General
+Foundation for ESP32 integration with Home Assistant. Currently works and can do basic environment readings and transmissions to Home Assistant, but I plan on adding in many more advanced features relating to IoT and Home Assistant integration. Very barebones for now!
