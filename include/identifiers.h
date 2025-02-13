@@ -6,10 +6,7 @@ namespace Identifiers
     inline constexpr float deviceVersion { 1.00 };
     inline constexpr float errorHandlerManagerVersion { 1.00 };
     inline constexpr float wifiManagerVersion { 1.00 };
-    inline constexpr float httpLibVersion ( 1.00 );
     inline constexpr float environReadingsVersion { 1.00 };
-
-
-    // forgot to make these inline variables... take note of that
-
+    inline constexpr float mqttManagerVersion { 1.00 };
+    inline constexpr float httpLibVersion ( 1.00 );
 }

@@ -1,6 +1,6 @@
 // Manager for:
 // Initializing a BME280 sensor to be used with SPI 
-// Creating a task that handles temperature, humidity, and atmospheric pressure readings
+// Creating a task that handles temperature, humidity, and atmospheric pressure readings, as well as MQTT publishings
 
 #include <Adafruit_BME280.h>
 #include <Adafruit_Sensor.h>
@@ -9,6 +9,8 @@
 #include "constants.h"
 #include "identifiers.h"
 #include "pins.h"
+#include "mqtt_lib.h" // Exposes the entire mqtt_client library... encapsulate it
+#include "topics.h"
 
 using namespace Pins::EnviroReadings; // Using directive for manager-relevant pin access
 
@@ -44,41 +46,49 @@ void enviroReadingsTask(void *param);
 
 void enviroReadingsTaskCreate()
 {
-    // Create task to continually read BME280 sensor data
+    // Create task to continually read and publish BME280 sensor data
     xTaskCreate(
         enviroReadingsTask,
         "Enviro Readings Task",
-        2048, // Larger stack size
+        4096, // Larger stack size needed for readings and MQTT
         nullptr,
         1,
         nullptr
     );
 }
 
-// Task for reading temperature, humidity, and pressure from BME280
+// Task for reading temperature, humidity, and pressure from BME280 and publishing it
 void enviroReadingsTask(void *param)
 {
-	float temperatureF;
-	float humidity;
-	float pressure;
+	extern esp_mqtt_client_handle_t mqttClientHandle;
+
+	// Converting sensor readings from Floats to Strings, then to C-Style Strings for MQTT publishing (will polish with eventual Serial reading removal)
+	float temperatureF; String temperatureFString; 
+	float humidity; 	String humidityString;
+	float pressure; 	String pressureString;
 
 	while (1)
 	{
-		// Would use printf, but the Arudino libraries seems to not like the floating points here and string conversions would be awk :(
 		temperatureF = (sensor.readTemperature() * 9.0 / 5.0) + 32;  // Convert celsius reading to fahrenheit
+		temperatureFString = temperatureF; 
 		Serial.print("Temp in °F: ");
 		Serial.println(temperatureF);
+		mqttPublish(Identifiers::deviceName, mqttClientHandle, Topics::temperatureTopic, temperatureFString.c_str()); // Convert String to C-style String
 
 		humidity = sensor.readHumidity();
+		humidityString = humidity;
 		Serial.print("Humidity: ");
 		Serial.print(humidity);
 		Serial.println(" %");
+		mqttPublish(Identifiers::deviceName, mqttClientHandle, Topics::humidityTopic, humidityString.c_str());
 
 		pressure = sensor.readPressure() / 100.0F; // Convert Pa to hPa
+		pressureString = pressure;
 		Serial.print("Pressure: ");
 		Serial.print(pressure); 
 		Serial.println(" hPa\n");
+		mqttPublish(Identifiers::deviceName, mqttClientHandle, Topics::pressureTopic, pressureString.c_str());
 
-		delay(2000); // Read every 2 seconds
+		delay(2000); // Read and publish every 2 seconds
 	}
 }

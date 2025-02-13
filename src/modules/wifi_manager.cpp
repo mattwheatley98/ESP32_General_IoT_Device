@@ -24,8 +24,8 @@ void wiFiInit()
     // Wait for successful connection
     while (WiFi.status() != WL_CONNECTED) 
     {     
-        delay(500);
         Serial.println("Connecting...");
+        delay(500);
     }
 
     Serial.println("Connected to WiFi!\n");

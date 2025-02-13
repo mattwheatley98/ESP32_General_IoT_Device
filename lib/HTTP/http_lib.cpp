@@ -1,5 +1,5 @@
 // Custom library for HTTP GET and POST requests to Home Assistant server
-// Decided to NOT be use HTTP for this project, in favor of MQQT for faster communciation and better Home Assistant support
+// Decided to NOT be use HTTP for this project, in favor of MQTT for faster communciation and better Home Assistant support
 
 #include <ArduinoJson.h>
 #include <HTTPClient.h>
